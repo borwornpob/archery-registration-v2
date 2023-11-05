@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
     Container,
     Heading,
@@ -12,17 +12,22 @@ import {
     FormHelperText,
 } from "@chakra-ui/react";
 import { LoginUser } from "../helper/api";
+import { UserContext } from "../helper/Context";
+import Cookies from "js-cookie";
 
 export default function Login() {
     const [telnumber, setTelnumber] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
 
+    const { user, setUser } = useContext(UserContext);
+
     const handleLogin = () => {
         setLoading(true);
         LoginUser({ telnumber, password })
             .then((res) => {
                 if (res.error == null) {
+                    Cookies.set("user", telnumber, { expires: 7 });
                     alert("Login success");
                     location.href = "/tournament-list";
                 } else {
@@ -36,6 +41,14 @@ export default function Login() {
                 setLoading(false);
             });
     };
+
+    useEffect(() => {
+        const user = Cookies.get("user");
+        if (user) {
+            setUser(user);
+            location.href = "/tournament-list";
+        }
+    });
 
     return (
         <Container>
